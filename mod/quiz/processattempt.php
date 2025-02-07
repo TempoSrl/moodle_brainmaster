@@ -67,6 +67,15 @@ if ($page == -1) {
     }
 }
 
+// Quando l’utente clicca "Next Page", salva il timestamp in una variabile di sessione.
+if ($next && !$finishattempt && !$timeup && isset($attemptid)) {
+    // Salva il timestamp nella sessione per "Next Page".
+    // Salva il timestamp nella sessione.
+    if (!isset($_SESSION['last_nextpage_timestamp'])){
+        $_SESSION['last_nextpage_timestamp']= time();
+    }   
+}
+
 // Check login.
 require_login($attemptobj->get_course(), false, $attemptobj->get_cm());
 require_sesskey();

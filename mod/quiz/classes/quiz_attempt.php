@@ -206,6 +206,17 @@ class quiz_attempt {
         $this->sections = array_values($DB->get_records('quiz_sections',
                 ['quizid' => $this->get_quizid()], 'firstslot'));
 
+        while (count($this->slots) < $this->quba->question_count()) {   //that's count($this->quba->questionattempts)
+            $first = reset($this->slots);
+            if ($first && is_object($first)) {
+                $new = clone $first;
+                $last = end($this->slots);
+                $new->slot = $last->slot + 1;
+                $new->displaynumber = $last->displaynumber + 1;
+                $this->slots[] = $new;
+            }      
+        }
+
         $this->link_sections_and_slots();
         $this->determine_layout();
         $this->number_questions();
@@ -2139,7 +2150,9 @@ class quiz_attempt {
                 // The student is too late.
                 $this->process_going_overdue($timenow, true);
             }
-
+			$uniqueid = $this->get_uniqueid();
+			$params = array('uniqueid' => $uniqueid);
+            $DB->execute("CALL process_question(:uniqueid)", $params);
             $transaction->allow_commit();
 
             return $becomingoverdue ? self::OVERDUE : self::IN_PROGRESS;
@@ -2175,7 +2188,8 @@ class quiz_attempt {
             throw new moodle_exception('errorprocessingresponses', 'question',
                     $this->attempt_url(null, $thispage), $e->getMessage(), $debuginfo);
         }
-
+       
+        
         // Send the user to the review page.
         $transaction->allow_commit();
 

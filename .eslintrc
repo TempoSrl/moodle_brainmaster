@@ -98,7 +98,7 @@
     'indent': ['off', 4, { 'SwitchCase': 1 }],
     'key-spacing': ['warn', { 'beforeColon': false, 'afterColon': true, 'mode': minimum }],
     'keyword-spacing': 'warn',
-    'linebreak-style': ['error', 'unix'],
+    'linebreak-style': "off",
     'lines-around-comment': 'off',
     'max-len': ['error', 132],
     'max-lines': 'off',

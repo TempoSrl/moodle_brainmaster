@@ -149,11 +149,18 @@ class quiz_settings {
     /**
      * Load just basic information about all the questions in this quiz.
      */
-    public function preload_questions() {
-        $slots = qbank_helper::get_question_structure($this->quiz->id, $this->context);
+    public function preload_questions(string $userid=null, int $action=null ) {
+        if ($this->quiz->name === "BrainMaster" && $action !== null){
+            $slots = qbank_helper::get_brainmaster_structure($userid, $this->course->id, $action);
+        }
+        else {
+            //A seguito della modifica $this->questions può contenere questionid duplicati, prima invece era un array associativo per questionid
+            $slots = qbank_helper::get_question_structure($this->quiz->id, $this->context);
+        }
+
         $this->questions = [];
         foreach ($slots as $slot) {
-            $this->questions[$slot->questionid] = $slot;
+             $this->questions[] = $slot; 
         }
     }
 
