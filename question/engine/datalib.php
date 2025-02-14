@@ -190,6 +190,9 @@ class question_engine_data_mapper {
      * @return array of question_attempt_step_data rows, that still need to be inserted.
      */
     protected function prepare_step_data(question_attempt_step $step, $stepid, $context, $insert=false) {
+        global $CFG;
+
+                    
         $rows = array();
         foreach ($step->get_all_data() as $name => $value) {
             if ($value instanceof question_file_saver) {
@@ -203,23 +206,25 @@ class question_engine_data_mapper {
             $data->attemptstepid = $stepid;
             $data->name = $name;
             $data->value = $value;
-            $rows[] = $data;
-
-            if ($insert){
-                $data = new stdClass();
-                $data->attemptstepid = $stepid;
-                $data->name =  $name . "_stamp";
-                $data->value = time();
-                $rows[] = $data;
-            }
+            $rows[] = $data;        
     
-            if (isset($_SESSION['last_nextpage_timestamp'])) {
+            if ($CFG->storetime){
+                if ($insert){
+                    $data = new stdClass();
+                    $data->attemptstepid = $stepid;
+                    $data->name =  $name . "_stamp";
+                    $data->value = time();
+                    $rows[] = $data;
+                }
+
+                if (isset($_SESSION['last_nextpage_timestamp'])) {
                     $next_page_data = new stdClass();
                     $next_page_data->attemptstepid = $stepid;
                     $next_page_data->name = "next_page_timestamp";
                     $next_page_data->value = $_SESSION['last_nextpage_timestamp'];
                     $rows[] = $next_page_data;
                     unset($_SESSION['last_nextpage_timestamp']);
+                }                
             }
     
         }
@@ -294,6 +299,7 @@ class question_engine_data_mapper {
      */
     public function insert_question_attempt_metadata(question_attempt $qa, array $names) {
         $firststep = $qa->get_step(0);
+        global $CFG;
 
         $rows = array();
         foreach ($names as $name) {
@@ -303,7 +309,7 @@ class question_engine_data_mapper {
             $data->value = $firststep->get_metadata_var($name);
             $rows[] = $data;
 
-            if ($name == "-submit"){
+            if ($CFG->storetime && $name == "-submit"){
                 $data = new stdClass();
                 $data->attemptstepid = $firststep->get_id();
                 $data->name = ':_' . $name . "_stamp";
@@ -1610,6 +1616,7 @@ class question_engine_unit_of_work implements question_usage_observer {
      * @param question_engine_data_mapper $dm the mapper to use to update the database.
      */
     public function save(question_engine_data_mapper $dm) {
+        global $CFG;
         $dm->delete_steps(array_keys($this->stepsdeleted), $this->quba->get_owning_context());
 
         // Initially an array of array of question_attempt_step_objects.
@@ -1631,20 +1638,22 @@ class question_engine_unit_of_work implements question_usage_observer {
         // Supponendo che $this->attemptsmodified sia un array ordinato di oggetti con la proprietà timemodified.
         $isValidOrder = true; // Flag per indicare se l'ordine è corretto.
 
-        // Controlla che l'array contenga almeno 2 elementi prima di entrare nel ciclo
-        if (count($this->attemptsmodified) > 1) {
-            for ($i = 0; $i < count($this->attemptsmodified) - 1; $i++) {
-                // Verifica che ci siano almeno due elementi da confrontare
-                if (isset($this->attemptsmodified[$i]) && isset($this->attemptsmodified[$i + 1])) {
-                    // Confronta il timemodified dell'elemento corrente con quello successivo.
-                    if ($this->attemptsmodified[$i]->timemodified > $this->attemptsmodified[$i + 1]->timemodified) {
-                        $isValidOrder = false;
-                        break; // Esce dal ciclo se trova un errore di ordine.
+        if ($CFG->storetime){
+            // Controlla che l'array contenga almeno 2 elementi prima di entrare nel ciclo
+            if (count($this->attemptsmodified) > 1) {
+                for ($i = 0; $i < count($this->attemptsmodified) - 1; $i++) {
+                    // Verifica che ci siano almeno due elementi da confrontare
+                    if (isset($this->attemptsmodified[$i]) && isset($this->attemptsmodified[$i + 1])) {
+                        // Confronta il timemodified dell'elemento corrente con quello successivo.
+                        if ($this->attemptsmodified[$i]->timemodified > $this->attemptsmodified[$i + 1]->timemodified) {
+                            $isValidOrder = false;
+                            break; // Esce dal ciclo se trova un errore di ordine.
+                        }
                     }
                 }
+            } else {
+                $isValidOrder = true; // Se l'array contiene 0 o 1 elemento, l'ordine è valido per default
             }
-        } else {
-            $isValidOrder = true; // Se l'array contiene 0 o 1 elemento, l'ordine è valido per default
         }
         
         if ($isValidOrder) {

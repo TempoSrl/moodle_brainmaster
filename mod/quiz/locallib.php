@@ -120,7 +120,7 @@ function get_action($userid, $courseid) {
         } elseif (isset($decodedResponse['action'])) {
             echo "Azione suggerita: " . $decodedResponse['action'];
             $action =  $decodedResponse['action'];
-            file_put_contents('C:\wamp64\www\moodle\allactivities_log.txt', "got action {$action}". PHP_EOL, FILE_APPEND);  
+            # file_put_contents('C:\wamp64\www\moodle\allactivities_log.txt', "got action {$action}". PHP_EOL, FILE_APPEND);  
             if ($action == "None"){
                 return  null;
             }
@@ -160,7 +160,7 @@ function get_action($userid, $courseid) {
  */
 function quiz_create_attempt(quiz_settings $quizobj, $attemptnumber, $lastattempt, $timenow, $ispreview = false, $userid = null) {
     global $USER;
-
+    
     if ($userid === null) {
         $userid = $USER->id;
     }

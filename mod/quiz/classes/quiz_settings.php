@@ -150,7 +150,9 @@ class quiz_settings {
      * Load just basic information about all the questions in this quiz.
      */
     public function preload_questions(string $userid=null, int $action=null ) {
-        if ($this->quiz->name === "BrainMaster" && $action !== null){
+        global $CFG;
+
+        if ($this->quiz->name === "BrainMaster" && (!empty($CFG->BrainMasterService)) &&  $action !== null){
             $slots = qbank_helper::get_brainmaster_structure($userid, $this->course->id, $action);
         }
         else {

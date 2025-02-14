@@ -59,4 +59,4 @@ moodle-plugin-ci.phar
 phpcs.xml
 jsconfig.json
 UPGRADING-CURRENT.md
-"*.bak" 
+*.bak

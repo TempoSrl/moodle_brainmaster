@@ -206,8 +206,7 @@ class qbank_helper {
                 JOIN {context} c ON c.instanceid = quiz.id AND c.contextlevel=80
                 WHERE q.id $sql_in;
             ";
-            file_put_contents('C:\wamp64\www\moodle\allactivities_log.txt', $sql . PHP_EOL, FILE_APPEND);
-
+            
             // Eseguiamo la query con i valori corretti
             $slotdata = $DB->get_records_sql($sql, $values);
         }
