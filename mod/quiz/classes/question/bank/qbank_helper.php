@@ -132,7 +132,7 @@ class qbank_helper {
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        file_put_contents('C:\wamp64\www\moodle\allactivities_log.txt', "moodle_get_test got response {$response}". PHP_EOL, FILE_APPEND);  
+        # file_put_contents('C:\wamp64\www\moodle\allactivities_log.txt', "moodle_get_test got response {$response}". PHP_EOL, FILE_APPEND);  
         
         if ($httpcode !== 200) {
             debugging("Brainmaster: Failed to notify web service. Response: $response", DEBUG_DEVELOPER);
@@ -142,7 +142,7 @@ class qbank_helper {
         if ($httpcode === 200) {
             // Decodifica la risposta JSON
             $decodedResponse = json_decode($response, true); // Usa true per un array associativo
-            // file_put_contents('C:\wamp64\www\moodle\allactivities_log.txt', "moodle_get_test got response {$decodedResponse}". PHP_EOL, FILE_APPEND);  
+            
             if (isset($decodedResponse['error'])) {
                 echo "Errore: " . $decodedResponse['error'];
                 return null;
@@ -210,23 +210,14 @@ class qbank_helper {
             // Eseguiamo la query con i valori corretti
             $slotdata = $DB->get_records_sql($sql, $values);
         }
-        
-        // Salva la query SQL nel file.
-        
 
         $uri = $_SERVER["REQUEST_URI"];
         echo($uri);
         
-
         foreach ($slotdata as $slot) {
             self::prepare_slot($slot);            
-            $temp = 'slot=' . $slot->slot . '; slotid=' . $slot->slotid . '; page=' . $slot->page . '; displaynum=' . $slot->displaynumber;
-            # file_put_contents('C:\wamp64\www\moodle\allactivities_log.txt', $temp . PHP_EOL, FILE_APPEND);
-            //da qui escono 5 quiz
         }
         $to_shift = array_key_first($slotdata);
-        // self::shift_question($slotdata, $to_shift);
-        // file_put_contents(__DIR__ . '/qbank_helper_log.txt', 'shifted '.$to_shift. PHP_EOL, FILE_APPEND);
         return $slotdata;
     }
 

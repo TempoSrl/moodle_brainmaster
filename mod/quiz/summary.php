@@ -61,7 +61,7 @@ function send_answers($attempt_id) {
     if ($httpcode === 200) {
         // Decodifica la risposta JSON
         $decodedResponse = json_decode($response, true); // Usa true per un array associativo
-        file_put_contents('C:\wamp64\www\moodle\allactivities_log.txt', "got response {$response}". PHP_EOL, FILE_APPEND);  
+        # file_put_contents('C:\wamp64\www\moodle\allactivities_log.txt', "got response {$response}". PHP_EOL, FILE_APPEND);  
       
     } else {
         debugging("Brainmaster: Failed to notify web service. Response: $response", DEBUG_DEVELOPER);

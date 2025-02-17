@@ -2155,11 +2155,11 @@ class quiz_attempt {
                 $this->process_going_overdue($timenow, true);
             }
 
-            if ($CFG->repeat_errors){                
+            if ($CFG->repeat_errors>0){                
                 //Appends failed questions to the end of current attempt when necessary           
                 $uniqueid = $this->get_uniqueid();
-                $params = array('uniqueid' => $uniqueid);
-                $DB->execute("CALL process_question(:uniqueid)", $params);    
+                $params = array('uniqueid' => $uniqueid, 'consecutive'=>$CFG->repeat_errors);
+                $DB->execute("CALL process_question(:uniqueid, :consecutive)", $params);    
             }
 
             $transaction->allow_commit();

@@ -2,7 +2,7 @@ DROP PROCEDURE IF EXISTS process_question;
 
 DELIMITER $$
 
-CREATE PROCEDURE process_question(IN _questionusageid BIGINT)
+CREATE PROCEDURE process_question(IN _questionusageid BIGINT, IN consecutive INT)
 proc_exit: BEGIN
     DECLARE new_qa_id bigint; 
     DECLARE new_qastep_id bigint; 
@@ -28,36 +28,16 @@ proc_exit: BEGIN
     SET _id_last=NULL;
 	SET _curr_id = NULL;
     set _curr_slot = null;
-    
-    
-    -- select questionusageid as questionusageid;
-    -- SELECT MAX(CASE  WHEN responsesummary IS NOT NULL and  questionusageid = _qid THEN slot ELSE NULL  END) into _curr_slot FROM mdl_question_attempts;
-		
-    -- SELECT MAX(CASE WHEN responsesummary IS NOT NULL and  questionusageid = _qid THEN id       ELSE NULL    END) into _curr_id FROM mdl_question_attempts;
-		
-
+	
     -- 1. individua lo slot dell'ultima risposta data
     SELECT max(slot), max(id) into  _curr_slot, _curr_id FROM mdl_question_attempts	where  questionusageid = _qid and responsesummary is not null; 
-    -- SELECT  slot, id INTO _curr_slot, _curr_id FROM mdl_question_attempts WHERE questionusageid = _qid AND responsesummary IS NOT NULL ORDER BY slot DESC, id DESC LIMIT 1;
 
-	
-    
     if (_curr_slot is null) THEN
 		leave proc_exit;
     END IF;    
-    
-
-     
-     
+        
     -- _max_slot e _id_last sono lo slot e l'id di "info"
     SELECT max(slot), max(id) into  _max_slot, _id_last FROM mdl_question_attempts where  questionusageid = _qid ; 
-     -- SELECT MAX(CASE  WHEN questionusageid = _qid THEN slot           ELSE NULL  END) into _max_slot 	FROM mdl_question_attempts;
-	
-    --  SELECT MAX(CASE  WHEN questionusageid = _qid THEN id           ELSE NULL  END) into _id_lastFROM mdl_question_attempts;
-        
-    
-
-    -- SELECT id into   FROM mdl_question_attempts where  questionusageid = _qid ; 
     
     -- 2. legge i valori dell'ultima risposta data 
 	SELECT responsesummary,rightanswer,questionid, id INTO _responsesummary,_rightanswer,_question_id, _qa_id
@@ -69,8 +49,6 @@ proc_exit: BEGIN
 						questionid= _question_id) THEN
                         leave proc_exit;
 	END IF;
-    -- TO COMMENT
-	--  SELECT _qid as _qid, _max_slot as _max_slot, _curr_slot as _curr_slot, _curr_id as _curr_id, _id_last as _id_last, _rightanswer as _rightanswer, _responsesummary as _responsesummary; 
     
     set _error_slot = null;
     set _n_correct_after_mistake  = 0;
@@ -94,7 +72,7 @@ proc_exit: BEGIN
 					_rightanswer= responsesummary and
                     slot >_error_slot;
                     
-		if 	_n_correct_after_mistake>=3 then
+		if 	_n_correct_after_mistake>=consecutive then
         		leave proc_exit;
 		end if;
     END IF;
