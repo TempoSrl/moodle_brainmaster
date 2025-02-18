@@ -209,6 +209,25 @@ class qbank_helper {
             
             // Eseguiamo la query con i valori corretti
             $slotdata = $DB->get_records_sql($sql, $values);
+
+            // Ordina esattamente come
+            usort($slotdata, function($a, $b) use ($ids) {
+                $pos_a = array_search($a->id, $ids);
+                $pos_b = array_search($b->id, $ids);
+                return $pos_a - $pos_b;
+            });
+
+            $counter = 1;
+            foreach ($slotdata as $slot) {
+                $slot->slot = $counter;
+                $slot->slotid = $counter; // Se slotid è identico a slot
+                $slot->page = $counter;   // Se page deve essere incrementale
+                $slot->displaynumber = $counter; // Se displaynumber deve essere incrementale
+                $slot->requireprevious = 1;
+                $counter++;
+            }
+            
+
         }
 
         $uri = $_SERVER["REQUEST_URI"];
