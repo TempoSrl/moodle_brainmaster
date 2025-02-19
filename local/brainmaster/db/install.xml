@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmldb xmlns="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.moodle.org/xmldb http://www.moodle.org/xmldb/xmldb.xsd">
+
+<!-- Installazione: definire il nuovo campo action -->
+<database name="moodle" xmlns="http://www.moodle.org/xmldb">
+    <table name="question_attempt" comment="Stores question attempts by users">
+        <field name="action" type="int" />
+    </table>
+</database>
+
+</xmldb>
