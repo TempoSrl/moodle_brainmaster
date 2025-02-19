@@ -102,7 +102,9 @@ class qbank_helper {
         }
     }
     
-    
+    /**
+     * Same as get_question_structure, but obtains questions from an external service
+     */
     public static function get_brainmaster_structure(string $userid, int $idcourse, ?int $action ): array {
         global $DB;
         global $CFG;
@@ -110,19 +112,18 @@ class qbank_helper {
         if (empty($CFG->BrainMasterService)){
             return [];
         }            
-        $url = $CFG->BrainMasterService."moodle_get_test"; // URL del web service.
+        $url = $CFG->BrainMasterService."moodle_get_test"; // web service url
 
         $data = json_encode([
             'id_student' => $userid,
             'id_course' => $idcourse,
             'action' => $action
         ]);
-
-        // Usa cURL per inviare i dati al web service.
+        
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);  // http_build_query($data)
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);  
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'Content-Type: application/json',
@@ -132,8 +133,6 @@ class qbank_helper {
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        # file_put_contents('C:\wamp64\www\moodle\allactivities_log.txt', "moodle_get_test got response {$response}". PHP_EOL, FILE_APPEND);  
-        
         if ($httpcode !== 200) {
             debugging("Brainmaster: Failed to notify web service. Response: $response", DEBUG_DEVELOPER);
         }
@@ -174,12 +173,6 @@ class qbank_helper {
             $ids = array_map('intval', $ids);
             list($sql_in, $values) = $DB->get_in_or_equal($ids, SQL_PARAMS_NAMED, 'id');
 
-            // Creiamo la stringa dei placeholder per l'IN (...)
-            //$placeholders_string = implode(',', $placeholders);
-        
-            // Query con placeholder dinamici
-            //ROW_NUMBER() OVER (ORDER BY slot.id) AS slot,
-            // ROW_NUMBER() OVER (ORDER BY slot.id) AS slotid,
             $sql = "
                 SELECT 
                     ROW_NUMBER() OVER (ORDER BY slot.id) AS slot,
@@ -207,10 +200,10 @@ class qbank_helper {
                 WHERE q.id $sql_in;
             ";
             
-            // Eseguiamo la query con i valori corretti
+            // Run the query
             $slotdata = $DB->get_records_sql($sql, $values);
 
-            // Ordina esattamente come
+            // Sort like $ids
             usort($slotdata, function($a, $b) use ($ids) {
                 $pos_a = array_search($a->id, $ids);
                 $pos_b = array_search($b->id, $ids);
@@ -220,9 +213,9 @@ class qbank_helper {
             $counter = 1;
             foreach ($slotdata as $slot) {
                 $slot->slot = $counter;
-                $slot->slotid = $counter; // Se slotid è identico a slot
-                $slot->page = $counter;   // Se page deve essere incrementale
-                $slot->displaynumber = $counter; // Se displaynumber deve essere incrementale
+                $slot->slotid = $counter; // slotid = slot
+                $slot->page = $counter;   // one page per question
+                $slot->displaynumber = $counter; 
                 $slot->requireprevious = 1;
                 $counter++;
             }

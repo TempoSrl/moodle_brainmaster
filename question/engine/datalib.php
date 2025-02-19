@@ -209,6 +209,7 @@ class question_engine_data_mapper {
             $rows[] = $data;        
     
             if ($CFG->storetime){
+                // Stores additional data in the log
                 if ($insert){
                     $data = new stdClass();
                     $data->attemptstepid = $stepid;

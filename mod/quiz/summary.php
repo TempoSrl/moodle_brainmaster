@@ -32,7 +32,9 @@ $attemptid = required_param('attempt', PARAM_INT); // The attempt to summarise.
 $cmid = optional_param('cmid', null, PARAM_INT);
 
 
-
+/**
+ * Sends result to the external service
+ */
 function send_answers($attempt_id) {
     global $CFG;
     if (empty($CFG->BrainMasterService)){

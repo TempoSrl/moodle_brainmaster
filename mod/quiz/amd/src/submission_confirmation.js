@@ -39,16 +39,16 @@ const TEMPLATES = {
 /**
  * Register events for attempt submit button.
  * @param {int} unAnsweredQuestions Total number of un-answered questions
- * @param {boolean} isSequentialMode - Indica se è attiva la modalità sequenziale.
+ * @param {boolean} isSequentialMode - Mode is sequential
  */
 const registerEventListeners = (unAnsweredQuestions, isSequentialMode) => {
     const submitAction = document.querySelector(SELECTOR.attemptSubmitButton);
     if (submitAction) {
         submitAction.addEventListener('click', async(e) => {
             e.preventDefault();
-            // Verifica la modalità sequenziale
+            // Checks  sequential mode
             if (isSequentialMode) {
-                // Salta la conferma e invia direttamente il form.
+                // Skips confirmation and send it directly
                 submitAction.closest(SELECTOR.attemptSubmitForm).submit();
                 return;
             }
@@ -75,7 +75,7 @@ const registerEventListeners = (unAnsweredQuestions, isSequentialMode) => {
 /**
  * Initialises.
  * @param {int} unAnsweredQuestions Total number of unanswered questions
- * @param {boolean} isSequentialMode - Indica se è attiva la modalità sequenziale.
+ * @param {boolean} isSequentialMode - Sequential mode 
  */
 export const init = (unAnsweredQuestions,isSequentialMode ) => {
     Prefetch.prefetchStrings('core', ['submit']);

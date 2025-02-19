@@ -207,7 +207,8 @@ class quiz_attempt {
                 ['quizid' => $this->get_quizid()], 'firstslot'));
 
         // this should not interfere anyway with normal quizzes
-        if ($this->get_quiz_name()=="BrainMaster"){
+        /*if ($this->get_quiz_name()=="BrainMaster"){
+            // New slots are added if they are needed
             while (count($this->slots) < $this->quba->question_count()) {   //that's count($this->quba->questionattempts)
                 $first = reset($this->slots);
                 if ($first && is_object($first)) {
@@ -218,7 +219,7 @@ class quiz_attempt {
                     $this->slots[] = $new;
                 }      
             }
-        }
+        }*/
 
         $this->link_sections_and_slots();
         $this->determine_layout();

@@ -181,6 +181,7 @@ function quiz_create_attempt(quiz_settings $quizobj, $attemptnumber, $lastattemp
         $attempt->layout = '';
         $attempt->action = null;
         if ($quizobj->get_quiz_name()=="BrainMaster"){
+            //set the action by the external service
             $attempt->action = get_action($userid, $quizobj->get_course()->id);
         }  
     } else {

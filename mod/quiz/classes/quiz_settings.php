@@ -153,6 +153,7 @@ class quiz_settings {
         global $CFG;
 
         if ($this->quiz->name === "BrainMaster" && (!empty($CFG->BrainMasterService)) &&  $action !== null){
+            //Gets structure from external service
             $slots = qbank_helper::get_brainmaster_structure($userid, $this->course->id, $action);
         }
         else {
@@ -162,7 +163,7 @@ class quiz_settings {
 
         $this->questions = [];
         foreach ($slots as $slot) {
-             $this->questions[] = $slot; 
+             $this->questions[] = $slot; //Before, this was a dictionary. This is necessary to allow question repetitions.
         }
     }
 
